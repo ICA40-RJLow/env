@@ -14,7 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   late String _email, _password;
 
-  Future<void> _login() async {
+  Future<String?> _login() async {
     final formState = _formKey.currentState;
     if (formState != null && formState.validate()) {
       formState.save();
@@ -43,12 +43,19 @@ class _LoginPageState extends State<LoginPage> {
             context,
             MaterialPageRoute(builder: (context) => const QCDataEntryApp()),
           );
+          final jsonResponse = json.decode(response.body);
+          debugPrint('$jsonResponse');
+          final token = jsonResponse['token'];
+          debugPrint('$token');
+          return token;
         });
       } else {
         // Login failed, handle the error
         debugPrint('Login failed: ${response.statusCode} - ${response.body}');
+        return null;
       }
     }
+    return null;
   }
 
   @override
