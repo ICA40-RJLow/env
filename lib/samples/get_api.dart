@@ -34,16 +34,49 @@ class _MyHomePageState extends State<MyHomePage> {
     fetchData();
   }
 
+  Future<String?> fetchToken() async{
+    final url = Uri.parse('https://adaaierp.com:9011/api/v1/user/login');
+
+    final headers = {
+      'content-type': 'application/json',
+      'x-client-id': 'adaai',
+      'x-secure-key': 'dSN43Z8Y8uh6Xvss',
+    };
+
+    final body = {
+      "user_id": "admin",
+      "user_pwd": "Adaa12023"
+    };
+
+    final response = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(body)
+    );
+
+    if (response.statusCode == 200) {
+      debugPrint('GET Token Successful');
+      final jsonResponse = json.decode(response.body);
+      final token = jsonResponse['token'];
+      if (token is String) {
+        debugPrint('token is a string');
+      }
+      return token;
+    } else {
+      debugPrint('Request failed with status[1]: ${response.statusCode}');
+      return null;
+    }
+  }
+
   void fetchData() async {
+    final token = await fetchToken();
     const url = 'https://adaaierp.com:9011/api/v1/production/JobOrderMaster/PageList';
 
-    // Set the headers for the request
     Map<String, String> headers = {
       'content-type': 'application/json',
       'x-client-id': 'adaai',
       'x-secure-key': 'dSN43Z8Y8uh6Xvss',
-      'Authorization':
-      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbkBhYmMuY29tIiwianRpIjoiNTJmY2QwOTktMDk0Ni00OGFjLWIxMzItNjRkMDRiNDcxZDI3IiwiZW1haWwiOiJhZG1pbkBhYmMuY29tIiwiaWQiOiIxIiwidHlwZSI6IkEiLCJvcmciOiIiLCJicmFuY2giOiIiLCJpc19wdXJfYXBwciI6IlkiLCJpc19zYWxfYXBwciI6IlkiLCJuYmYiOjE2ODQ4OTMxMDAsImV4cCI6MTY4NDkzNjMwMCwiaWF0IjoxNjg0ODkzMTAwfQ.MTEpWHrXECpvjg1mqGzegrEkoE6rCNEeGICDNPLllGg',
+      'Authorization': 'Bearer $token'
     };
 
     // Send the HTTP GET request
@@ -64,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     } else {
       // If the request fails, handle the error
-      debugPrint('Request failed with status: ${response.statusCode}');
+      debugPrint('Request failed with status[2]: ${response.statusCode}');
     }
   }
 
@@ -97,4 +130,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
